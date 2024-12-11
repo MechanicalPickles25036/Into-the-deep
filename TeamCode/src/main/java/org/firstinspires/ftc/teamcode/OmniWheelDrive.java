@@ -84,7 +84,7 @@ public class OmniWheelDrive extends OpMode {
     @Override
     public void loop() {
         double y = -gamepad1.left_stick_y; // Inverted because y is negative when pushed forward
-        double x = gamepad1.left_stick_x;
+        double x = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
         double rx = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
 
         double frontLeftPower = y + x + rx;
