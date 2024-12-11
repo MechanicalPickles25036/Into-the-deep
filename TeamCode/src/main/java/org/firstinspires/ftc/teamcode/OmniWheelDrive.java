@@ -25,7 +25,7 @@ public class OmniWheelDrive extends OpMode {
     private Servo servoMotor;
     private DcMotorEx motor1;
     private DcMotorEx motor2;
-    public static PIDCoefficients armCoefficients = new PIDCoefficients(0.1, 0, 0);
+    public static PIDCoefficients armCoefficients = new PIDCoefficients(0.7, 0, 0);
     PIDFController armController = new PIDFController(armCoefficients);
     double armTargetPos = 0;
     double autodrivepos = 0;
@@ -68,8 +68,7 @@ public class OmniWheelDrive extends OpMode {
     }
 
     public void setPower(double target) {
-        armController.setTargetPosition(armTargetPos);
-        motor1.setPower(armController.getTargetVelocity());
+        motor1.setPower(armController.update(motor1.getCurrentPosition()));
 //        motor2.setPower(kP * (target - motor1.getCurrentPosition()));
         motor2.setPower(motor1.getPower());
     }
@@ -83,6 +82,9 @@ public class OmniWheelDrive extends OpMode {
 
     @Override
     public void loop() {
+        armController.setTargetPosition(armTargetPos);
+
+
         double y = -gamepad1.left_stick_y; // Inverted because y is negative when pushed forward
         double x = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
         double rx = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
@@ -116,15 +118,14 @@ public class OmniWheelDrive extends OpMode {
             armTargetPos = motor1.getCurrentPosition();
         }
 
-        if (colorSensor.blue() > 100 && colorSensor.blue() > colorSensor.red()) {
+        if (colorSensor.blue() > 100 && colorSensor.blue() > colorSensor.red() && colorSensor.blue() > colorSensor.green()) {
             color = "BLUE";
-        } else if (colorSensor.red() > 100 && colorSensor.red() > colorSensor.blue()) {
+        } else if (colorSensor.red() > 100 && colorSensor.red() > colorSensor.blue() && colorSensor.red() > colorSensor.green()) {
             color = "red";
-        } else if (colorSensor.green() > 100 && colorSensor.green() > colorSensor.red()) {
+        } else if (colorSensor.green() > 100 && colorSensor.green() > colorSensor.red() && colorSensor.green() > colorSensor.blue()) {
             color = "yellow";
         } else {
             color = "don't know?";
-
         }
         telemetry.addData("frontLeftPower", frontLeftPower);
         telemetry.addData("frontRightPower", frontRightPower);
