@@ -1,18 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "all", group = "TeleOp")
@@ -33,6 +32,7 @@ public class OmniWheelDrive extends OpMode {
 
     @Override
     public void init() {
+        telemetry = new MultipleTelemetry(telemetry,FtcDashboard.getInstance().getTelemetry());
         frontLeft = hardwareMap.dcMotor.get("frontLeft");
         frontRight = hardwareMap.dcMotor.get("frontRight");
         backLeft = hardwareMap.dcMotor.get("backLeft");
@@ -108,7 +108,7 @@ public class OmniWheelDrive extends OpMode {
             armTargetPos = 100;
         }
         //double power = -gamepad2.left_stick_y;
-        //motor1.setPower(power);
+         //motor1.setPower(power);
         //motor2.setPower(power);
         if (gamepad2.left_stick_y < 0.1 && gamepad2.left_stick_y > -0.1) {
             setPower(armTargetPos);
