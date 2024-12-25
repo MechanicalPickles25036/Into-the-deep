@@ -3,12 +3,12 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.control.PIDCoefficients;
-import com.acmerobotics.roadrunner.control.PIDFController;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -25,7 +25,6 @@ public class OmniWheelDrive extends OpMode {
     private DcMotorEx motor1;
     private DcMotorEx motor2;
     public static PIDCoefficients armCoefficients = new PIDCoefficients(0.7, 0, 0);
-    PIDFController armController = new PIDFController(armCoefficients);
     double armTargetPos = 0;
     double autodrivepos = 0;
     ColorSensor colorSensor;
@@ -68,7 +67,7 @@ public class OmniWheelDrive extends OpMode {
     }
 
     public void setPower(double target) {
-        motor1.setPower(armController.update(motor1.getCurrentPosition()));
+        motor1.setPower((target - motor1.getCurrentPosition()) * 0.7);
 //        motor2.setPower(kP * (target - motor1.getCurrentPosition()));
         motor2.setPower(motor1.getPower());
     }
@@ -82,9 +81,6 @@ public class OmniWheelDrive extends OpMode {
 
     @Override
     public void loop() {
-        armController.setTargetPosition(armTargetPos);
-
-
         double y = -gamepad1.left_stick_y; // Inverted because y is negative when pushed forward
         double x = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
         double rx = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
