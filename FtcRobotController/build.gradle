@@ -27,4 +27,8 @@ android {
     namespace = 'com.qualcomm.ftcrobotcontroller'
 }
 
+dependencies {
+    implementation 'org.openftc:opencv-repackaged-bundled-dylibs:4.10.0-A'
+}
+
 apply from: '../build.dependencies.gradle'

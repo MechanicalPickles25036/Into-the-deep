@@ -13,8 +13,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 @Config
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "all1", group = "TeleOp")
-public class OmniWheelDrive extends OpMode {
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "all2", group = "TeleOp")
+public class all2 extends OpMode {
     String color = "";
     private DcMotor frontLeft;
     private DcMotor frontRight;
@@ -30,8 +30,8 @@ public class OmniWheelDrive extends OpMode {
     ColorSensor colorSensor;
     double kP = 0.0005;
     double kG;
-    private static final int MAX_ENCODER_TICKS = 3500; // מקסימום ערכי אינקודר (לדוגמה)
-    private static final int MIN_ENCODER_TICKS = -5000; // מינימום
+    boolean buttonAPress = false;
+
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(telemetry,FtcDashboard.getInstance().getTelemetry());
@@ -70,8 +70,6 @@ public class OmniWheelDrive extends OpMode {
         motor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
     }
 
     public void setPowerV(double target) {
@@ -82,21 +80,23 @@ public class OmniWheelDrive extends OpMode {
 
     public void setPowerR(double target) {
         //motor1.setPower((target - motor1.getCurrentPosition()) * 0.7);
-        motor1.setPower((5*kP +kG) * (target - (1000 + motor1.getCurrentPosition())));
+        motor1.setPower((5*kP +kG) * (target - motor1.getCurrentPosition()));
         motor3.setPower(motor1.getPower());
         //  motor2.setPower(motor1.getPower());
     }
 
-    public void Autodrive(double ztarget) {
+    public void Autodrive(double target) {
 //        backLeft.setPower(kP * (target - backLeft.getCurrentPosition()));
 //        backRight.setPower(kP * (target - backRight.getCurrentPosition()));
 //        motor2.setPower(motor1.getPower());
     }
 
 
+
+
     @Override
     public void loop() {
-        kG = Math.cos((2*Math.PI*(1000+motor1.getCurrentPosition()))/3895.9)*(((Math.abs(motor2.getCurrentPosition()))*19.5)/(384.5*2*Math.PI*1000));
+        kG = Math.cos((2*Math.PI* motor1.getCurrentPosition())/3895.9)*(1000-(Math.abs(motor2.getCurrentPosition())*19.5)/(384.5*2*Math.PI*1000));
         double y = -gamepad1.left_stick_y*Math.abs(gamepad1.left_stick_y); // Inverted because y is negative when pushed forward
         double x = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
         double rx = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
@@ -124,13 +124,13 @@ public class OmniWheelDrive extends OpMode {
         //double power = -gamepad2.left_stick_y;
         //motor1.setPower(power);
         //motor2.setPower(power);
-        if (gamepad2.left_stick_y < 0.1 && gamepad2.left_stick_y > -0.1) {
+      /*  if (gamepad2.left_stick_y < 0.1 && gamepad2.left_stick_y > -0.1) {
             setPowerR(armRad);
         } else {
             motor1.setPower(-gamepad2.left_stick_y);
-            armRad = 1000+motor1.getCurrentPosition();
+            armRad = motor1.getCurrentPosition();
             motor3.setPower(-gamepad2.left_stick_y);
-        }
+        }2
 
 
         if (gamepad2.right_stick_y < 0.1 && gamepad2.right_stick_y > -0.1) {
@@ -138,7 +138,7 @@ public class OmniWheelDrive extends OpMode {
         } else {
             motor2.setPower(gamepad2.right_stick_y);
             armVert = motor2.getCurrentPosition();
-        }
+        }*/
 
         if (colorSensor.blue() > 100 && colorSensor.blue() > colorSensor.red() && colorSensor.blue() > colorSensor.green()) {
             color = "BLUE";
@@ -157,9 +157,13 @@ public class OmniWheelDrive extends OpMode {
         telemetry.addData("Arm power", motor1.getPower());
         telemetry.addData("COLOR: ", color);
         telemetry.addData("pawer", (motor2.getCurrentPosition()*19.5)/(384.5*2*Math.PI*500));
-        telemetry.addData("cos", Math.cos((2*Math.PI*(1000+motor1.getCurrentPosition()))/3895.9));
+        telemetry.addData("cos", Math.cos((2*Math.PI* motor1.getCurrentPosition())/3895.9));
         // telemetry.addData("COLOR: B", colorSensor.blue());
         //   telemetry.addData("Motor Power", power);
         telemetry.addData("armRad", motor1.getCurrentPosition());
         telemetry.addData("armVert", motor2.getCurrentPosition());
-        telemetry.update();}}
+        telemetry.update();
+    }
+
+
+}
