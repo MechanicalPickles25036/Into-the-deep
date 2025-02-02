@@ -28,9 +28,10 @@ public class all14 extends OpMode {
     boolean servo_pos;
     private String color = "";
     private int currentServoPositionIndex = 0;
-    private final double[] servoPositions = {0, 0.25, 0.5, 0.75, 1}; // פוזיציות למנוע הסרוו
-    private boolean lastLeftBumper = false, lastRightBumper = false;
+    private final double[] Positions = {0, 200, 300, 700, 1200, 1200}; // פוזיציות למנוע הסרוו
+    private boolean lastLeftBumper = false, lastRightBumper = false, lastDpad = false;
     boolean wasButtonAPressed = false;
+    private boolean lock = false;
     private static final int MAX_ENCODER_TICKS = 3500; // מקסימום ערכי אינקודר (לדוגמה)
     private static final int MIN_ENCODER_TICKS = -5000; // מינימום ערכים
 
@@ -59,7 +60,7 @@ public class all14 extends OpMode {
         motor1.setDirection(DcMotor.Direction.REVERSE);
         motor2.setDirection(DcMotor.Direction.FORWARD);
 
-        updateServoPosition();
+        //updateServoPosition();
     }
 
     private void resetArm() {
@@ -77,12 +78,13 @@ public class all14 extends OpMode {
         motor3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    private void updateServoPosition() {
-        double position = servoPositions[currentServoPositionIndex];
-        servoMotor.setPosition(position);
+    /*
+        private void updateServoPosition() {
+            double position = servoPositions[currentServoPositionIndex];
+            servoMotor.setPosition(position);
 
-    }
-
+        }
+    */
     public void setPowerV(double target) {
         //motor1.setPower((target - motor1.getCurrentPosition()) * 0.7);
         motor2.setPower(kP * (target - motor2.getCurrentPosition()));
@@ -98,7 +100,7 @@ public class all14 extends OpMode {
 
     @Override
     public void loop() {
-        kG = Math.cos((2 * Math.PI * (1500 + motor1.getCurrentPosition())) / 3895.9) * (((Math.abs(motor2.getCurrentPosition())) * 19.5) / (384.5 * 2 * Math.PI * 1000));
+        kG = Math.cos((2 * Math.PI * (1000 + motor1.getCurrentPosition())) / 3895.9) * (((Math.abs(motor2.getCurrentPosition())) * 19.5) / (384.5 * 2 * Math.PI * 1000));
         double y = -gamepad1.left_stick_y; // Inverted because y is negative when pushed forward
         double x = gamepad1.left_stick_x;
         double rx = gamepad1.right_stick_x;
@@ -141,7 +143,10 @@ public class all14 extends OpMode {
         } else if (!gamepad2.left_bumper & lastLeftBumper) {
             lastLeftBumper = false;
             count = count + 1;
-            armRad = 1500 - (350 * count);
+            if (count > 5) {
+                count = 5;
+            }
+            armRad = 1500 - Positions[count];
 
 
         }
@@ -151,39 +156,52 @@ public class all14 extends OpMode {
         } else if (!gamepad2.right_bumper & lastRightBumper) {
             lastRightBumper = false;
             count = count - 1;
-            armRad = 1500 - (350 * count);
+            if (count < 0) {
+                count = 0;
+            }
+            armRad = 1500 - Positions[count];
 
         }
         setPowerR(armRad);
-
+        if (gamepad2.y) {
+            servoMotor.setPosition(1);
+        }
+        if (gamepad2.x) {
+            servoMotor.setPosition(0);
+        }
         //  lastLeftBumper = leftBumper;
         // lastRightBumper = rightBumper;
-
+/*
         if (gamepad2.a & !wasButtonAPressed) {
             wasButtonAPressed = true;
         } else if (!gamepad2.a & wasButtonAPressed & servo_pos) {
             wasButtonAPressed = false;
             servoMotor.setPosition(1);
             servo_pos = true;
-
-           // count = count + 1;
+            // count = count + 1;
         } else if (!gamepad2.a & wasButtonAPressed & !servo_pos){
             wasButtonAPressed = false;
             servo_pos = false;
-          servoMotor.setPosition(0);
+            servoMotor.setPosition(0);
 
-    } if (gamepad2.dpad_up){
-            while (gamepad2.dpad_down){
-                motor2.setPower(1);
-            }
+        } */
+
+        if (gamepad2.dpad_up & !lastDpad) {
+            lastDpad = true;
+        } else if (!gamepad2.dpad_up & lastDpad) {
+            lastDpad = false;
+            lock = !lock;
         }
+        if (!lock) {
 
-
-        if (gamepad2.right_stick_y < 0.1 && gamepad2.right_stick_y > -0.1) {
-            setPowerV(armVert);
-        } else {
-            motor2.setPower(gamepad2.right_stick_y);
-            armVert = motor2.getCurrentPosition();
+            if (gamepad2.right_stick_y < 0.1 && gamepad2.right_stick_y > -0.1) {
+                setPowerV(armVert);
+            } else {
+                motor2.setPower(gamepad2.right_stick_y);
+                armVert = motor2.getCurrentPosition();
+            }
+        } else if (lock) {
+            motor2.setPower(0.9);
         }
 
         // זיהוי צבע
@@ -198,13 +216,14 @@ public class all14 extends OpMode {
         }
 
 
-
         telemetry.addData("Detected Color", color);
         telemetry.addData("Arm power", motor1.getPower());
         telemetry.addData("Arm Motor 1 Position", motor1.getCurrentPosition());
         telemetry.addData("Arm Motor 2 Position", motor2.getCurrentPosition());
         telemetry.addData("press a", count);
         telemetry.addData("armRad", armRad);
+        telemetry.addData("last", lastDpad);
+        telemetry.addData("Down", gamepad2.dpad_down);
         // telemetry.addData("Servo Position", position);
         telemetry.update();
     }

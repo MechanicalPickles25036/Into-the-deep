@@ -1,4 +1,6 @@
 package org.firstinspires.ftc.teamcode;
+
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -14,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 @Config
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "all1", group = "TeleOp")
-public class OmniWheelDrive extends OpMode {
+public class all1 extends OpMode {
     String color = "";
     private DcMotor frontLeft;
     private DcMotor frontRight;
@@ -24,6 +26,7 @@ public class OmniWheelDrive extends OpMode {
     private DcMotorEx motor1;
     private DcMotorEx motor2;
     private DcMotorEx motor3;
+    private final double[] Positions = {0, 250, 350, 750, 1250, 1350}; // פוזיציות למנוע הסרוו
     public static PIDCoefficients armCoefficients = new PIDCoefficients(0.7, 0, 0);
     double armRad = 1000;
     double armVert = 0;
@@ -32,6 +35,10 @@ public class OmniWheelDrive extends OpMode {
     double kG;
     private static final int MAX_ENCODER_TICKS = 35000; // מקסימום ערכי אינקודר (לדוגמה)
     private static final int MIN_ENCODER_TICKS = -5000; // מינימום
+    private boolean lastDpad=false;
+    private boolean lock = false
+            ;
+
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(telemetry,FtcDashboard.getInstance().getTelemetry());
@@ -96,8 +103,8 @@ public class OmniWheelDrive extends OpMode {
 
     @Override
     public void loop() {
-        kG = Math.cos((2*Math.PI*(1000+motor1.getCurrentPosition()))/3895.9)*(((Math.abs(motor2.getCurrentPosition()))*19.5)/(384.5*2*Math.PI*1000));
-        double y = -gamepad1.left_stick_y*Math.abs(gamepad1.left_stick_y); // Inverted because y is negative when pushed forward
+        kG = Math.cos((2 * Math.PI * (1000 + motor1.getCurrentPosition())) / 3895.9) * (((Math.abs(motor2.getCurrentPosition())) * 19.5) / (384.5 * 2 * Math.PI * 1000));
+        double y = -gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y); // Inverted because y is negative when pushed forward
         double x = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
         double rx = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
 
@@ -111,10 +118,10 @@ public class OmniWheelDrive extends OpMode {
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
 
-        if (gamepad2.y){
+        if (gamepad2.y) {
             servoMotor.setPosition(1);
         }
-        if (gamepad2.x){
+        if (gamepad2.x) {
             servoMotor.setPosition(0);
         }
         //  double rightStickY = gamepad2.right_stick_y;  // הפיכת הערך לשליטה נכונה
@@ -128,17 +135,30 @@ public class OmniWheelDrive extends OpMode {
             setPowerR(armRad);
         } else {
             motor1.setPower(-gamepad2.left_stick_y);
-            armRad = 1000+motor1.getCurrentPosition();
+            armRad = 1000 + motor1.getCurrentPosition();
             motor3.setPower(-gamepad2.left_stick_y);
+
+        }
+
+        if (gamepad2.dpad_up & !lastDpad) {
+            lastDpad = true;
+        } else if (!gamepad2.dpad_up & lastDpad) {
+            lastDpad = false;
+            lock = !lock;
+        }
+        if (!lock) {
+
+            if (gamepad2.right_stick_y < 0.1 && gamepad2.right_stick_y > -0.1) {
+                setPowerV(armVert);
+            } else {
+                motor2.setPower(gamepad2.right_stick_y);
+                armVert = motor2.getCurrentPosition();
+            }
+        } else if (lock) {
+            motor2.setPower(0.9);
         }
 
 
-        if (gamepad2.right_stick_y < 0.1 && gamepad2.right_stick_y > -0.1) {
-            setPowerV(armVert);
-        } else {
-            motor2.setPower(gamepad2.right_stick_y);
-            armVert = motor2.getCurrentPosition();
-        }
 
         if (colorSensor.blue() > 100 && colorSensor.blue() > colorSensor.red() && colorSensor.blue() > colorSensor.green()) {
             color = "BLUE";

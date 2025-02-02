@@ -17,6 +17,7 @@ public class autonomi extends OpMode {
     private Servo servoMotor;
     private DcMotor motor1;
     private DcMotor motor2;
+    private DcMotor motor3;
     double kP = 0.15;
     double armTargetPos =0;
     double autodrivepos =0;
@@ -31,9 +32,46 @@ public class autonomi extends OpMode {
 
         motor1 = hardwareMap.dcMotor.get("armMotor1");
         motor2 = hardwareMap.dcMotor.get("armMotor2");
+        motor3 = hardwareMap.dcMotor.get("armMotor3");
 
         servoMotor = hardwareMap.get(Servo.class, "leftServo");
 
+        resetArm();
+        reserBody();
+
+        motor1.setDirection(DcMotor.Direction.REVERSE);
+        motor2.setDirection(DcMotor.Direction.FORWARD);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+        /*
+        backRight.getCurrentPosition();
+        backLeft.getCurrentPosition();
+        frontRight.getCurrentPosition();
+        frontLeft.getCurrentPosition();
+        motor1.getCurrentPosition();
+        motor2.getCurrentPosition();*/
+    }
+    public void setPower(double target) {
+        motor1.setPower(kP * (target - motor1.getCurrentPosition()));
+        motor2.setPower(kP * (target - motor2.getCurrentPosition()));
+        //motor2.setPower(motor1.getPower());
+    }
+    public void distance(double target) {
+        backLeft.setPower(kP * (target -backLeft.getCurrentPosition()));
+        backRight.setPower(kP * (target - backRight.getCurrentPosition()));
+        //motor2.setPower(motor1.getPower());
+    }
+    private void resetArm() {
+
+        motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+    private void reserBody(){
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -46,49 +84,15 @@ public class autonomi extends OpMode {
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
-
-        motor1.setDirection(DcMotor.Direction.REVERSE);
-        motor2.setDirection(DcMotor.Direction.FORWARD);
-        backRight.getCurrentPosition();
-        backLeft.getCurrentPosition();
-        frontRight.getCurrentPosition();
-        frontLeft.getCurrentPosition();
-        motor1.getCurrentPosition();
-        motor2.getCurrentPosition();
-    }
-    public void setPower(double target) {
-        motor1.setPower(kP * (target - motor1.getCurrentPosition()));
-        motor2.setPower(kP * (target - motor2.getCurrentPosition()));
-        //motor2.setPower(motor1.getPower());
-    }
-    public void Autodrive(double target) {
-        backLeft.setPower(kP * (target -backLeft.getCurrentPosition()));
-        backRight.setPower(kP * (target - backRight.getCurrentPosition()));
-        //motor2.setPower(motor1.getPower());
-    }
-    public void distance(double proximity ){
-
     }
     @Override
     public void loop() {
+    if (count == 0){
+        distance(100);
+        
 
+    }
 
-        if (gamepad2.dpad_up) {
-            armTargetPos = 100;
-        }
-        setPower(armTargetPos);
-
-        if (gamepad2.dpad_left) {
-            autodrivepos = 100;
-        }
 
         telemetry.addData("frontLeftPs", backRight.getCurrentPosition());
         telemetry.addData("frontRightPs", backLeft.getCurrentPosition());
