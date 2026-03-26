@@ -3,14 +3,15 @@ package org.firstinspires.ftc.teamcode.newcode.SubSystem;
 import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 public class Drive {
-    private DcMotor right_front;
-    private DcMotor left_front;
-    private DcMotor right_back;
-    private DcMotor left_back;
+    private DcMotor front_Right;
+    private DcMotor front_Left;
+    private DcMotor back_Right;
+    private DcMotor back_Left;
     private HardwareMap hardwareMap;
 
 //    public Drive(HardwareMap hardwareMap) {
@@ -26,20 +27,20 @@ public class Drive {
 //        this.hardwareMap = hardwareMap;
     }
     public void init(HardwareMap hardwareMap){
-        right_front = hardwareMap.get(DcMotor.class, "frontRight");
-        right_back = hardwareMap.get(DcMotor.class, "backRight");
-        left_front = hardwareMap.get(DcMotor.class, "frontLeft");
-        left_back = hardwareMap.get(DcMotor.class, "backLeft");
+        front_Right = hardwareMap.get(DcMotor.class, "frontRight"); //חיבור0
+        back_Right = hardwareMap.get(DcMotor.class, "backRight"); //חיבור1
+        front_Left = hardwareMap.get(DcMotor.class, "frontLeft"); //חיבור2
+        back_Left = hardwareMap.get(DcMotor.class, "backLeft"); //חיבור3
 
-        left_back.setDirection(DcMotor.Direction.FORWARD);
-        right_back.setDirection(DcMotor.Direction.REVERSE);
-        left_front.setDirection(DcMotor.Direction.FORWARD);
-        right_front.setDirection(DcMotor.Direction.REVERSE);
+        back_Left.setDirection(DcMotor.Direction.FORWARD);
+        back_Right.setDirection(DcMotor.Direction.REVERSE);
+        front_Left.setDirection(DcMotor.Direction.FORWARD);
+        front_Right.setDirection(DcMotor.Direction.REVERSE);
 
-        left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        right_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        right_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        back_Left.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        back_Right.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        front_Left.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        front_Right.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
 
@@ -51,10 +52,10 @@ public class Drive {
 
 
     public void all_drive(@NonNull double[] direction){
-        right_front.setPower(direction[0] - direction[1] - direction[2]);
-        right_back.setPower(direction[0]+ direction[1] - direction[2]);
-        left_front.setPower (direction[0] + direction[1] + direction[2]);
-        left_back.setPower (direction[0] - direction[1] + direction[2]);
+        front_Right.setPower(direction[0] - direction[1] - direction[2]);
+        back_Right.setPower(direction[0]+ direction[1] - direction[2]);
+        front_Left.setPower (direction[0] + direction[1] + direction[2]);
+        back_Left.setPower (direction[0] - direction[1] + direction[2]);
 
 
 
